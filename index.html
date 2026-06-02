@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gorillas & Bananas por LeoClates</title>
+    <title>Batman: Gotham Rooftops por LeoClates</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,7 +13,7 @@
             padding: 0;
         }
         body {
-            background-color: #0000a8;
+            background-color: #050510; /* Negro azulado gótico */
             color: #ffffff;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
@@ -25,7 +25,7 @@
         
         #retro-header {
             background: #000;
-            border-bottom: 3px double #fff;
+            border-bottom: 3px double #ffff00; /* Amarillo Batman */
             padding: 6px 12px;
             display: flex;
             flex-direction: column;
@@ -36,14 +36,14 @@
         }
         #retro-header h1 {
             font-size: 18px;
-            color: #ffff54;
-            text-shadow: 2px 2px #a80000;
-            letter-spacing: 1px;
+            color: #ffff00;
+            text-shadow: 2px 2px #333;
+            letter-spacing: 2px;
             font-weight: bold;
         }
         #retro-header .credito {
             font-size: 11px;
-            color: #54ffff;
+            color: #aaaaaa;
             font-weight: bold;
             letter-spacing: 1px;
         }
@@ -54,9 +54,9 @@
             align-items: center;
             padding: 4px 12px;
             font-size: 12px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             font-weight: bold;
-            border-bottom: 1px solid #fff;
+            border-bottom: 1px solid #ffff00;
             z-index: 15;
             min-height: 32px;
         }
@@ -65,7 +65,7 @@
             flex: 1;
             position: relative;
             width: 100%;
-            background: #0000a8;
+            background: #050510;
         }
         canvas {
             display: block;
@@ -78,7 +78,7 @@
 
         #controles-tactiles {
             background: #000;
-            border-top: 4px solid #fff;
+            border-top: 4px solid #ffff00;
             padding: 10px 10px 20px 10px;
             display: grid;
             grid-template-columns: 1fr 1.1fr 1fr;
@@ -98,14 +98,14 @@
         .label-control {
             font-size: 11px;
             text-transform: uppercase;
-            color: #a8a8a8;
+            color: #888888;
             font-weight: bold;
         }
 
         .valor-control {
             font-size: 20px;
             font-weight: bold;
-            color: #ffff54;
+            color: #ffff00;
         }
 
         .botones-ajuste {
@@ -119,32 +119,32 @@
             padding: 10px 0;
             font-size: 20px;
             font-weight: bold;
-            background: #222;
-            color: #fff;
-            border: 2px solid #fff;
+            background: #151515;
+            color: #ffff00;
+            border: 2px solid #ffff00;
             border-radius: 6px;
             touch-action: manipulation;
         }
         .btn-accion:active {
-            background: #fff;
+            background: #ffff00;
             color: #000;
         }
 
         .btn-fuego {
             width: 100%;
             height: 85%;
-            background: #a80000;
-            color: #fff;
-            border: 3px solid #fff;
+            background: #222222;
+            color: #ffff00;
+            border: 3px solid #ffff00;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             text-transform: uppercase;
             touch-action: manipulation;
             box-shadow: inset -2px -2px #000;
         }
         .btn-fuego:active {
-            background: #ffff54;
+            background: #ffff00;
             color: #000;
             box-shadow: none;
         }
@@ -168,13 +168,13 @@
 <body>
 
     <div id="retro-header">
-        <h1>GORILAS & BANANAS</h1>
+        <h1>BATMAN: GOTHAM ROOFTOPS</h1>
         <div class="credito">BY LEOCLATES</div>
     </div>
 
     <div id="hud">
-        <div id="intentos-txt">INTENTOS: <span id="marcador-bananas" style="color: #ffff54; letter-spacing: 2px;"></span></div>
-        <div id="status-txt">CALIBRA TU TIRO Y ¡FUEGO!</div>
+        <div id="intentos-txt">BATARANGS: <span id="marcador-bananas" style="letter-spacing: 2px;"></span></div>
+        <div id="status-txt">AJUSTA TUS COORDENADAS Y ¡LANZA!</div>
     </div>
 
     <div id="canvas-container">
@@ -192,7 +192,7 @@
         </div>
 
         <div class="columna-control">
-            <button class="btn-fuego" onclick="lanzarBanana()">¡FUEGO!</button>
+            <button class="btn-fuego" onclick="lanzarBanana()">¡LANZA!</button>
         </div>
 
         <div class="columna-control">
@@ -226,7 +226,7 @@
                 osc.type = tipo;
                 osc.frequency.setValueAtTime(frecuenciaInicial, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(frecuenciaFinal, audioCtx.currentTime + duracion);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duracion);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -235,12 +235,15 @@
             } catch(e) {}
         }
 
-        // Carga de imágenes
-        const imgGorilaQuieto = new Image(); imgGorilaQuieto.src = 'gorila_quieto.png';
-        const imgGorilaLanza = new Image(); imgGorilaLanza.src = 'gorila_lanza.png';
-        const imgGorilaObjetivo = new Image(); imgGorilaObjetivo.src = 'gorila_objetivo.png';
-        const imgGorilaDerrotado = new Image(); imgGorilaDerrotado.src = 'gorila_derrotado.png';
-        const imgBanana = new Image(); imgBanana.src = 'banana.png';
+        // Carga de imágenes temáticas
+        const imgBatmanQuieto = new Image(); imgBatmanQuieto.src = 'batman_quieto.png';
+        const imgBatmanLanza = new Image(); imgBatmanLanza.src = 'batman_lanza.png';
+        const imgBatarang = new Image(); imgBatarang.src = 'batarang.png';
+        const imgVillanoDerrotado = new Image(); imgVillanoDerrotado.src = 'villano_derrotado.png';
+
+        // NUEVO: Array con la galería de villanos para rotación aleatoria
+        const rutasVillanos = ['villano1.png', 'villano2.png', 'villano3.png', 'villano4.png'];
+        const imgVillanoActual = new Image();
 
         let intentos = 5;
         let angulo = 45;
@@ -248,12 +251,21 @@
         let edificios = [];
         let bloqueado = false;
         
+        let indiceEdificioJugador = 0;
+        let indiceEdificioObjetivo = 2;
+
         let jugador = { x: 0, y: 0, ancho: 40, alto: 40, estado: 'quieto' };
         let objetivo = { x: 0, y: 0, ancho: 40, alto: 40, estado: 'vivo' };
         let banana = { x: 0, y: 0, vx: 0, vy: 0, activa: false, anguloRotacion: 0 };
         const gravedad = 0.15;
 
         let ultimoImpacto = { x: null, y: null, visible: false };
+
+        // Seleccionar un enemigo de la galería al azar
+        function rotarVillano() {
+            const indiceAzar = Math.floor(Math.random() * rutasVillanos.length);
+            imgVillanoActual.src = rutasVillanos[indiceAzar];
+        }
 
         function redimensionarCanvas() {
             if (!container) return;
@@ -271,12 +283,12 @@
         function generarCiudad() {
             edificios = [];
             let xActual = 0;
-            const minAncho = 60;
-            const maxAncho = 100;
+            const minAncho = 45; 
+            const maxAncho = 70;
 
             while (xActual < canvas.width) {
                 let anchoEdificio = Math.floor(Math.random() * (maxAncho - minAncho)) + minAncho;
-                let altoEdificio = Math.floor(Math.random() * (canvas.height * 0.4)) + (canvas.height * 0.2);
+                let altoEdificio = Math.floor(Math.random() * (canvas.height * 0.5)) + (canvas.height * 0.15);
                 
                 if (xActual + anchoEdificio > canvas.width) {
                     anchoEdificio = canvas.width - xActual;
@@ -290,16 +302,29 @@
                 });
                 xActual += anchoEdificio;
             }
+
+            if (edificios.length > 3) {
+                indiceEdificioJugador = Math.floor(Math.random() * Math.min(3, edificios.length - 3));
+                
+                let minIndicesFaltantes = indiceEdificioJugador + 3;
+                let rangoDisponible = edificios.length - minIndicesFaltantes;
+                
+                indiceEdificioObjetivo = minIndicesFaltantes + Math.floor(Math.random() * rangoDisponible);
+                
+                if (indiceEdificioObjetivo >= edificios.length) {
+                    indiceEdificioObjetivo = edificios.length - 1;
+                }
+            }
             reubicarPersonajes();
         }
 
         function reubicarPersonajes() {
-            if (edificios.length > 3) {
-                let eJugador = edificios[1];
+            if (edificios.length > indiceEdificioObjetivo && edificios[indiceEdificioJugador]) {
+                let eJugador = edificios[indiceEdificioJugador];
                 jugador.x = eJugador.x + (eJugador.ancho / 2) - 20;
                 jugador.y = eJugador.y - 40;
 
-                let eObjetivo = edificios[edificios.length - 2];
+                let eObjetivo = edificios[indiceEdificioObjetivo];
                 objetivo.x = eObjetivo.x + (eObjetivo.ancho / 2) - 20;
                 objetivo.y = eObjetivo.y - 40;
             }
@@ -309,12 +334,12 @@
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
             ctx.font = "bold 11px monospace";
-            ctx.fillText("▲ MIRA EL CUADRO ROJO ANTERIOR PARA CORREGIR", 15, 20);
+            ctx.fillText("▲ RASTREADOR: CORRIGE USANDO EL PUNTO ROJO ANTERIOR", 15, 20);
 
-            // Edificios
-            ctx.fillStyle = "rgba(70, 70, 70, 0.9)";
+            // Edificios estilo Gotham Oscuro (Gris asfalto opaco)
+            ctx.fillStyle = "rgba(40, 44, 52, 0.95)";
             edificios.forEach(e => {
                 ctx.fillRect(e.x, e.y, e.ancho, e.alto);
             });
@@ -327,38 +352,38 @@
                 ctx.strokeRect(ultimoImpacto.x - 6, ultimoImpacto.y - 6, 12, 12);
             }
 
-            // Jugador
-            let imgActual = (jugador.estado === 'lanza') ? imgGorilaLanza : imgGorilaQuieto;
+            // Batman
+            let imgActual = (jugador.estado === 'lanza') ? imgBatmanLanza : imgBatmanQuieto;
             if (imgActual.complete && imgActual.naturalWidth !== 0) {
                 ctx.drawImage(imgActual, jugador.x, jugador.y, jugador.ancho, jugador.alto);
             } else {
-                ctx.fillStyle = "#00a8a8";
+                ctx.fillStyle = "#1a237e"; /* Respaldo Azul Batman */
                 ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
             }
 
-            // Objetivo
-            let imgRival = (objetivo.estado === 'derrotado') ? imgGorilaDerrotado : imgGorilaObjetivo;
+            // Villano Dinámico
+            let imgRival = (objetivo.estado === 'derrotado') ? imgVillanoDerrotado : imgVillanoActual;
             if (imgRival.complete && imgRival.naturalWidth !== 0) {
                 ctx.drawImage(imgRival, objetivo.x, objetivo.y, objetivo.ancho, objetivo.alto);
             } else {
-                ctx.fillStyle = (objetivo.estado === 'derrotado') ? "#ffff54" : "#a80000";
+                ctx.fillStyle = (objetivo.estado === 'derrotado') ? "#555" : "#e65100"; /* Respaldo Naranja */
                 ctx.fillRect(objetivo.x, objetivo.y, objetivo.ancho, objetivo.alto);
             }
 
-            // Banana
+            // Batarang (40x40)
             if (banana.activa) {
-                if (imgBanana.complete && imgBanana.naturalWidth !== 0) {
+                if (imgBatarang.complete && imgBatarang.naturalWidth !== 0) {
                     ctx.save();
                     ctx.translate(banana.x, banana.y);
                     ctx.rotate(banana.anguloRotacion);
-                    ctx.drawImage(imgBanana, -20, -20, 40, 40);
+                    ctx.drawImage(imgBatarang, -20, -20, 40, 40);
                     ctx.restore();
                 } else {
                     ctx.save();
                     ctx.translate(banana.x, banana.y);
                     ctx.rotate(banana.anguloRotacion);
-                    ctx.fillStyle = "#ffff54";
-                    ctx.fillRect(-20, -20, 40, 40);
+                    ctx.fillStyle = "#ffff00";
+                    ctx.fillRect(-15, -6, 30, 12);
                     ctx.restore();
                 }
             }
@@ -367,7 +392,7 @@
         function ajustar(tipo, valor) {
             if (bloqueado) return;
             iniciarAudio();
-            sonarRetro(400, 400, 0.04, 'triangle');
+            sonarRetro(420, 420, 0.04, 'triangle');
             if (tipo === 'angulo') {
                 angulo = Math.max(0, Math.min(90, angulo + valor));
                 document.getElementById("angulo-val").innerText = angulo + "°";
@@ -384,13 +409,14 @@
 
             banana.activa = true;
             jugador.estado = 'lanza';
-            document.getElementById("status-txt").innerText = "¡BANANA VOLANDO!";
+            document.getElementById("status-txt").innerText = "¡BATARANG EN VUELO!";
             
-            sonarRetro(160, 580, 0.28, 'square');
+            // Sonido tipo bat-disparo silbante
+            sonarRetro(200, 700, 0.25, 'triangle');
 
             const radianes = (angulo * Math.PI) / 180;
             banana.x = jugador.x + 20;
-            banana.y = jugador.y - 10;
+            banana.y = jugador.y - 15; 
             
             const escalaFisica = canvas.width * 0.00028;
             banana.vx = Math.cos(radianes) * velocidad * escalaFisica;
@@ -406,7 +432,7 @@
             banana.x += banana.vx;
             banana.vy += gravedad;
             banana.y += banana.vy;
-            banana.anguloRotacion += 0.18;
+            banana.anguloRotacion += 0.22; // Giro más veloz para el Batarang
 
             if (banana.x < 0 || banana.x > canvas.width || banana.y > canvas.height) {
                 ultimoImpacto.visible = false;
@@ -421,8 +447,8 @@
                 ultimoImpacto.visible = false;
                 
                 dibujar();
-                sonarRetro(300, 40, 1.2, 'sawtooth');
-                document.getElementById("status-txt").innerText = "💥 ¡K.O. DIRECTO! ¡GANASTE! 💥";
+                sonarRetro(350, 60, 1.1, 'sawtooth');
+                document.getElementById("status-txt").innerText = "💥 ¡AMENAZA NEUTRALIZADA! 🎉";
                 
                 setTimeout(() => {
                     bloqueado = false;
@@ -434,7 +460,7 @@
 
             for (let e of edificios) {
                 if (banana.x > e.x && banana.x < e.x + e.ancho && banana.y > e.y) {
-                    sonarRetro(110, 50, 0.18, 'triangle');
+                    sonarRetro(130, 60, 0.15, 'triangle');
                     ultimoImpacto.x = banana.x;
                     ultimoImpacto.y = banana.y;
                     ultimoImpacto.visible = true;
@@ -460,15 +486,15 @@
 
             if (intentos <= 0) {
                 bloqueado = true;
-                document.getElementById("status-txt").innerText = "¡GAME OVER! REGENERANDO...";
-                sonarRetro(90, 45, 1.1, 'square');
+                document.getElementById("status-txt").innerText = "¡GOTHAM CAYÓ! CAMBIANDO DE ZONA...";
+                sonarRetro(80, 40, 1.2, 'square');
                 setTimeout(() => {
                     bloqueado = false;
                     edificios = [];
                     reiniciarTodoElJuego();
                 }, 2000);
             } else {
-                document.getElementById("status-txt").innerText = "¡FALLASTE! CORRIGE TU TIRO";
+                document.getElementById("status-txt").innerText = "¡FALLASTE! RE-CALCULA LA TRAYECTORIA";
                 dibujar();
             }
         }
@@ -479,8 +505,9 @@
             objetivo.estado = 'vivo';
             intentos = 5;
             ultimoImpacto.visible = false;
+            rotarVillano(); // <<< CRÍTICO: Rota al malhechor antes de dibujar el nuevo mapa
             actualizarHUD();
-            document.getElementById("status-txt").innerText = "¡NUEVO MAPA! APUNTA";
+            document.getElementById("status-txt").innerText = "¡NUEVO OBJETIVO EN JUEGO! APUNTA";
             redimensionarCanvas();
         }
 
@@ -489,7 +516,7 @@
             if (!contenedor) return;
             let textoBananas = "";
             for(let i = 0; i < 5; i++) {
-                textoBananas += (i < intentos) ? "🍌" : "💩";
+                textoBananas += (i < intentos) ? "🦇" : "💩"; // Murciélagos retro en lugar de bananas
             }
             contenedor.innerHTML = textoBananas;
         }
@@ -499,6 +526,8 @@
             setTimeout(redimensionarCanvas, 300);
         });
 
+        // Carga inicial segura
+        rotarVillano();
         setTimeout(redimensionarCanvas, 100);
 
         function alCargar() {
@@ -506,10 +535,11 @@
             dibujar();
         }
         imgGorilaQuieto.onload = alCargar;
-        imgGorilaLanza = alCargar;
+        imgGorilaLanza.onload = alCargar;
         imgGorilaObjetivo.onload = alCargar;
         imgGorilaDerrotado.onload = alCargar;
         imgBanana.onload = alCargar;
+        imgVillanoActual.onload = alCargar;
     </script>
 </body>
 </html>
