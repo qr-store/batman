@@ -13,7 +13,7 @@
             padding: 0;
         }
         body {
-            background-color: #050510; /* Negro azulado gótico */
+            background-color: #050510;
             color: #ffffff;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
@@ -25,7 +25,7 @@
         
         #retro-header {
             background: #000;
-            border-bottom: 3px double #ffff00; /* Amarillo Batman */
+            border-bottom: 3px double #ffff00;
             padding: 6px 12px;
             display: flex;
             flex-direction: column;
@@ -48,17 +48,31 @@
             letter-spacing: 1px;
         }
 
+        /* HUD optimizado para meter Puntos y Vidas en una sola línea */
         #hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 12px;
-            font-size: 12px;
-            background: rgba(0, 0, 0, 0.85);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 6px 12px;
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.9);
             font-weight: bold;
             border-bottom: 1px solid #ffff00;
             z-index: 15;
-            min-height: 32px;
+        }
+        .hud-linea {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #status-txt {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #ffff00;
+            border-top: 1px dashed #333;
+            padding-top: 3px;
+            margin-top: 3px;
+            font-size: 12px;
         }
 
         #canvas-container {
@@ -173,7 +187,10 @@
     </div>
 
     <div id="hud">
-        <div id="intentos-txt">BATARANGS: <span id="marcador-bananas" style="letter-spacing: 2px;"></span></div>
+        <div class="hud-linea">TIROS: <span id="marcador-bananas"></span></div>
+        <div class="hud-linea" style="justify-content: flex-end; gap: 5px;">VIDAS: <span id="marcador-vidas">❤️❤️❤️</span></div>
+        <div class="hud-linea">SCORE: <span id="marcador-score" style="color: #ffff00;">0000</span></div>
+        <div class="hud-linea" style="justify-content: flex-end;">HI-SCORE: <span id="marcador-hiscore" style="color: #54ffff;">1000</span></div>
         <div id="status-txt">AJUSTA TUS COORDENADAS Y ¡LANZA!</div>
     </div>
 
@@ -235,17 +252,22 @@
             } catch(e) {}
         }
 
-        // Carga de imágenes temáticas
+        // Carga de imágenes
         const imgBatmanQuieto = new Image(); imgBatmanQuieto.src = 'batman_quieto.png';
         const imgBatmanLanza = new Image(); imgBatmanLanza.src = 'batman_lanza.png';
         const imgBatarang = new Image(); imgBatarang.src = 'batarang.png';
         const imgVillanoDerrotado = new Image(); imgVillanoDerrotado.src = 'villano_derrotado.png';
 
-        // NUEVO: Array con la galería de villanos para rotación aleatoria
         const rutasVillanos = ['villano1.png', 'villano2.png', 'villano3.png', 'villano4.png'];
         const imgVillanoActual = new Image();
 
-        let intentos = 5;
+        // Variables de la Nueva Estructura Arcade
+        let score = 0;
+        let hiscore = 1000;
+        let vidas = 3;       // 3 Vidas globales
+        let intentos = 5;    // 5 Batarangs por ronda
+        let gameOver = false;
+
         let angulo = 45;
         let velocidad = 40; 
         let edificios = [];
@@ -261,7 +283,6 @@
 
         let ultimoImpacto = { x: null, y: null, visible: false };
 
-        // Seleccionar un enemigo de la galería al azar
         function rotarVillano() {
             const indiceAzar = Math.floor(Math.random() * rutasVillanos.length);
             imgVillanoActual.src = rutasVillanos[indiceAzar];
@@ -305,10 +326,8 @@
 
             if (edificios.length > 3) {
                 indiceEdificioJugador = Math.floor(Math.random() * Math.min(3, edificios.length - 3));
-                
                 let minIndicesFaltantes = indiceEdificioJugador + 3;
                 let rangoDisponible = edificios.length - minIndicesFaltantes;
-                
                 indiceEdificioObjetivo = minIndicesFaltantes + Math.floor(Math.random() * rangoDisponible);
                 
                 if (indiceEdificioObjetivo >= edificios.length) {
@@ -334,11 +353,29 @@
             if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Si es Game Over, pinta la pantalla negra arcade y frena el renderizado
+            if (gameOver) {
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#ff0000";
+                ctx.font = "bold 32px 'Courier New', monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
+
+                ctx.fillStyle = "#ffff00";
+                ctx.font = "bold 13px 'Courier New', monospace";
+                ctx.fillText("TOCA LA PANTALLA PARA REINICIAR", canvas.width / 2, canvas.height / 2 + 20);
+                
+                ctx.textAlign = "left"; // Resetea alineación
+                return;
+            }
+
             ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
             ctx.font = "bold 11px monospace";
             ctx.fillText("▲ RASTREADOR: CORRIGE USANDO EL PUNTO ROJO ANTERIOR", 15, 20);
 
-            // Edificios estilo Gotham Oscuro (Gris asfalto opaco)
+            // Edificios
             ctx.fillStyle = "rgba(40, 44, 52, 0.95)";
             edificios.forEach(e => {
                 ctx.fillRect(e.x, e.y, e.ancho, e.alto);
@@ -357,20 +394,20 @@
             if (imgActual.complete && imgActual.naturalWidth !== 0) {
                 ctx.drawImage(imgActual, jugador.x, jugador.y, jugador.ancho, jugador.alto);
             } else {
-                ctx.fillStyle = "#1a237e"; /* Respaldo Azul Batman */
+                ctx.fillStyle = "#1a237e";
                 ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
             }
 
-            // Villano Dinámico
+            // Villano
             let imgRival = (objetivo.estado === 'derrotado') ? imgVillanoDerrotado : imgVillanoActual;
             if (imgRival.complete && imgRival.naturalWidth !== 0) {
                 ctx.drawImage(imgRival, objetivo.x, objetivo.y, objetivo.ancho, objetivo.alto);
             } else {
-                ctx.fillStyle = (objetivo.estado === 'derrotado') ? "#555" : "#e65100"; /* Respaldo Naranja */
+                ctx.fillStyle = (objetivo.estado === 'derrotado') ? "#555" : "#e65100";
                 ctx.fillRect(objetivo.x, objetivo.y, objetivo.ancho, objetivo.alto);
             }
 
-            // Batarang (40x40)
+            // Batarang
             if (banana.activa) {
                 if (imgBatarang.complete && imgBatarang.naturalWidth !== 0) {
                     ctx.save();
@@ -390,7 +427,7 @@
         }
 
         function ajustar(tipo, valor) {
-            if (bloqueado) return;
+            if (bloqueado || gameOver) return;
             iniciarAudio();
             sonarRetro(420, 420, 0.04, 'triangle');
             if (tipo === 'angulo') {
@@ -404,14 +441,13 @@
         }
 
         function lanzarBanana() {
-            if (banana.activa || bloqueado) return;
+            if (banana.activa || bloqueado || gameOver) return;
             iniciarAudio();
 
             banana.activa = true;
             jugador.estado = 'lanza';
             document.getElementById("status-txt").innerText = "¡BATARANG EN VUELO!";
             
-            // Sonido tipo bat-disparo silbante
             sonarRetro(200, 700, 0.25, 'triangle');
 
             const radianes = (angulo * Math.PI) / 180;
@@ -432,7 +468,7 @@
             banana.x += banana.vx;
             banana.vy += gravedad;
             banana.y += banana.vy;
-            banana.anguloRotacion += 0.22; // Giro más veloz para el Batarang
+            banana.anguloRotacion += 0.22;
 
             if (banana.x < 0 || banana.x > canvas.width || banana.y > canvas.height) {
                 ultimoImpacto.visible = false;
@@ -440,30 +476,40 @@
                 return;
             }
 
+            // ¡ACERTASTE!: +100 PUNTOS
             if (detectarColision(banana, objetivo)) {
                 banana.activa = false;
                 bloqueado = true;
                 objetivo.estado = 'derrotado';
                 ultimoImpacto.visible = false;
                 
+                score += 100; // Sumar puntos
+                actualizarMarcadoresVisuales();
+                
                 dibujar();
                 sonarRetro(350, 60, 1.1, 'sawtooth');
-                document.getElementById("status-txt").innerText = "💥 ¡AMENAZA NEUTRALIZADA! 🎉";
+                document.getElementById("status-txt").innerText = "💥 ¡AMENAZA NEUTRALIZADA! +100 PTS 💥";
                 
                 setTimeout(() => {
                     bloqueado = false;
                     edificios = []; 
-                    reiniciarTodoElJuego();
+                    intentos = 5; // Restablece tiros para la nueva ronda
+                    reiniciarRondaDinamica();
                 }, 2500);
                 return;
             }
 
+            // CHOQUE CON EDIFICIO: -20 PUNTOS
             for (let e of edificios) {
                 if (banana.x > e.x && banana.x < e.x + e.ancho && banana.y > e.y) {
                     sonarRetro(130, 60, 0.15, 'triangle');
                     ultimoImpacto.x = banana.x;
                     ultimoImpacto.y = banana.y;
                     ultimoImpacto.visible = true;
+                    
+                    score = Math.max(0, score - 20); // Restar puntos sin bajar de cero
+                    actualizarMarcadoresVisuales();
+
                     procesarFallo();
                     return;
                 }
@@ -486,29 +532,52 @@
 
             if (intentos <= 0) {
                 bloqueado = true;
-                document.getElementById("status-txt").innerText = "¡GOTHAM CAYÓ! CAMBIANDO DE ZONA...";
-                sonarRetro(80, 40, 1.2, 'square');
-                setTimeout(() => {
-                    bloqueado = false;
-                    edificios = [];
-                    reiniciarTodoElJuego();
-                }, 2000);
+                vidas--; // Quita una vida global
+                actualizarMarcadoresVisuales();
+
+                if (vidas <= 0) {
+                    // DESENCADENA EL GAME OVER DEFINITIVO
+                    gameOver = true;
+                    if (score > hiscore) hiscore = score;
+                    actualizarMarcadoresVisuales();
+                    dibujar();
+                    sonarRetro(120, 30, 1.5, 'square');
+                } else {
+                    document.getElementById("status-txt").innerText = "¡ZONA COPADA! PERDISTE UNA VIDA 💥";
+                    sonarRetro(100, 50, 1.0, 'square');
+                    setTimeout(() => {
+                        bloqueado = false;
+                        edificios = [];
+                        intentos = 5; // Te devuelve 5 tiros limpios
+                        reiniciarRondaDinamica();
+                    }, 2000);
+                }
             } else {
-                document.getElementById("status-txt").innerText = "¡FALLASTE! RE-CALCULA LA TRAYECTORIA";
+                document.getElementById("status-txt").innerText = "ERROR, RECALCULA"; // Texto corto pedido
                 dibujar();
             }
         }
 
-        function reiniciarTodoElJuego() {
+        function reiniciarRondaDinamica() {
             banana.activa = false;
             jugador.estado = 'quieto';
             objetivo.estado = 'vivo';
-            intentos = 5;
             ultimoImpacto.visible = false;
-            rotarVillano(); // <<< CRÍTICO: Rota al malhechor antes de dibujar el nuevo mapa
+            rotarVillano(); 
             actualizarHUD();
-            document.getElementById("status-txt").innerText = "¡NUEVO OBJETIVO EN JUEGO! APUNTA";
+            if(!gameOver) document.getElementById("status-txt").innerText = "¡NUEVO OBJETIVO EN JUEGO! APUNTA";
             redimensionarCanvas();
+        }
+
+        function reiniciarJuegoCompletoDesdeCero() {
+            score = 0;
+            vidas = 3;
+            intentos = 5;
+            gameOver = false;
+            bloqueado = false;
+            edificios = [];
+            actualizarMarcadoresVisuales();
+            reiniciarRondaDinamica();
         }
 
         function actualizarHUD() {
@@ -516,29 +585,55 @@
             if (!contenedor) return;
             let textoBananas = "";
             for(let i = 0; i < 5; i++) {
-                textoBananas += (i < intentos) ? "🦇" : "💩"; // Murciélagos retro en lugar de bananas
+                textoBananas += (i < intentos) ? "🦇" : "💩";
             }
             contenedor.innerHTML = textoBananas;
         }
+
+        function actualizarMarcadoresVisuales() {
+            // Actualizar Puntos
+            document.getElementById("marcador-score").innerText = String(score).padStart(4, '0');
+            document.getElementById("marcador-hiscore").innerText = String(hiscore).padStart(4, '0');
+            
+            // Actualizar Vidas (Corazones)
+            let textoVidas = "";
+            for(let v = 0; v < 3; v++) {
+                textoVidas += (v < vidas) ? "❤️" : "🖤";
+            }
+            document.getElementById("marcador-vidas").innerText = textoVidas;
+        }
+
+        // Manejador táctil para la pantalla de Game Over
+        canvas.addEventListener('click', () => {
+            if (gameOver) reiniciarJuegoCompletoDesdeCero();
+        });
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameOver) {
+                e.preventDefault();
+                reiniciarJuegoCompletoDesdeCero();
+            }
+        });
 
         window.addEventListener('resize', redimensionarCanvas);
         window.addEventListener('orientationchange', () => {
             setTimeout(redimensionarCanvas, 300);
         });
 
-        // Carga inicial segura
         rotarVillano();
-        setTimeout(redimensionarCanvas, 100);
+        setTimeout(() => {
+            actualizarMarcadoresVisuales();
+            redimensionarCanvas();
+        }, 100);
 
         function alCargar() {
             actualizarHUD();
             dibujar();
         }
-        imgGorilaQuieto.onload = alCargar;
-        imgGorilaLanza.onload = alCargar;
-        imgGorilaObjetivo.onload = alCargar;
-        imgGorilaDerrotado.onload = alCargar;
-        imgBanana.onload = alCargar;
+        imgBatmanQuieto.onload = alCargar;
+        imgBatmanLanza.onload = alCargar;
+        imgGorilaObjetivo.onload = alCargar; // Mantenido por compatibilidad de buffers
+        imgVillanoDerrotado.onload = alCargar;
+        imgBatarang.onload = alCargar;
         imgVillanoActual.onload = alCargar;
     </script>
 </body>
